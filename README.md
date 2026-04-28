@@ -90,7 +90,7 @@ You review, correct what you disagree with, and push validated negatives back in
 | `gas_zentral_v1.js` | Google Apps Script — AI classification engine, menu system, export logic |
 | `uploader_v1.js` | Google Ads script — pushes validated negatives back into your account |
 | `README.md` | This file |
-| `Template` | Link to Google Sheet template (see below) |
+| `Template` | [Google Sheet template — click to copy](https://docs.google.com/spreadsheets/d/1xHLd-H2uIfDsKvdKaW7OL3hR6xKbXT_3oYbZZRllQFw/copy) |
 
 ---
 
@@ -100,7 +100,7 @@ You don't need to know how to code.
 
 **Step 1 — Copy the Google Sheet template**
 
-Make a copy of the [Google Sheet template](#) *(link coming soon)* and fill in the `Config` tab:
+Make a copy of the [Google Sheet template](https://docs.google.com/spreadsheets/d/1xHLd-H2uIfDsKvdKaW7OL3hR6xKbXT_3oYbZZRllQFw/copy) and fill in the `Config` tab:
 - Your industry and business name
 - 5–8 example search term classifications (this dramatically improves AI accuracy)
 - Everything else has sensible defaults
