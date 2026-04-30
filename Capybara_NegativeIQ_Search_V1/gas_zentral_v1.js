@@ -8,13 +8,13 @@
 // ─────────────────────────────────────────────────────────────
 function onOpen() {
   SpreadsheetApp.getUi()
-    .createMenu('🐾 Capybara NegativeIQ Search')
-    .addItem('1. Layout & Dropdowns vorbereiten',          'setupLayout')
-    .addItem('2. Neue Keywords klassifizieren (KI-Batch)', 'classifyBatch')
-    .addItem('3. Validierte Daten exportieren',            'exportValidated')
-    .addItem('4. Korrekturen in Config zurückschreiben',   'learningLoop')
+    .createMenu('🛠️ AI Max NegativeIQ Search')
+    .addItem('1. Prepare Layout',                          'setupLayout')
+    .addItem('2. Classify SearchTerms (AI)',               'classifyBatch')
+    .addItem('3. Export Validated Data',                   'exportValidated')
+    .addItem('4. Update Config (Learning Loop)',           'learningLoop')
     .addSeparator()
-    .addItem('🧹 Export-Sheets leeren (Neustart)',        'clearExportSheets')
+    .addItem('🧹 Clear Export Sheets',                    'clearExportSheets')
     .addItem('🔍 Diagnose & Debug',                       'debugDiagnose')
     .addToUi();
 }
@@ -23,7 +23,7 @@ function onOpen() {
 // LOGGER HELPER
 // ─────────────────────────────────────────────────────────────
 function log(msg) {
-  console.log('[Capybara] ' + msg);
+  console.log('[AI Max NegativeIQ] ' + msg);
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -838,12 +838,12 @@ function learningLoop() {
            .setBorder(true, true, true, true, true, true,
              '#D0D0D0', SpreadsheetApp.BorderStyle.SOLID);
 
-      // Spalte I: Kategorie — erst komplett clearen, dann neu stylen
+      // Spalte I: Kategorie — schwarzer Text wie bestehende Template-Einträge
       var iCell = cfgSheet.getRange(nextExRow, 9);
       iCell.clearFormat();
       iCell.setValue(e.category)
            .setFontFamily('Arial').setFontSize(10).setFontWeight('bold')
-           .setFontColor(c.fg).setBackground('#FFFFFF').setFontStyle('normal')
+           .setFontColor('#000000').setBackground('#FFFFFF').setFontStyle('normal')
            .setHorizontalAlignment('center').setVerticalAlignment('center').setWrap(false)
            .setBorder(true, true, true, true, true, true,
              '#D0D0D0', SpreadsheetApp.BorderStyle.SOLID);
