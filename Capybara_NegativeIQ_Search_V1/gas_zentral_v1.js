@@ -9,10 +9,10 @@
 function onOpen() {
   SpreadsheetApp.getUi()
     .createMenu('🐾 Capybara NegativeIQ Search')
-    .addItem('1. Layout & Dropdowns vorbereiten',         'setupLayout')
+    .addItem('1. Layout & Dropdowns vorbereiten',          'setupLayout')
     .addItem('2. Neue Keywords klassifizieren (KI-Batch)', 'classifyBatch')
-    .addItem('3. Korrekturen in Config zurückschreiben',  'learningLoop')
-    .addItem('4. Validierte Daten exportieren',           'exportValidated')
+    .addItem('3. Validierte Daten exportieren',            'exportValidated')
+    .addItem('4. Korrekturen in Config zurückschreiben',   'learningLoop')
     .addSeparator()
     .addItem('🧹 Export-Sheets leeren (Neustart)',        'clearExportSheets')
     .addItem('🔍 Diagnose & Debug',                       'debugDiagnose')
@@ -229,6 +229,7 @@ function setupLayout() {
         SpreadsheetApp.newDataValidation().requireValueInList(catCodes, true).build()
       );
     }
+    sheet.getRange(3, 11, stRows).clearDataValidations();
     sheet.getRange(3, 11, stRows).insertCheckboxes();
     sheet.getRange(3, 12, stRows).setDataValidation(
       SpreadsheetApp.newDataValidation().requireValueInList(['Exact', 'Phrase', 'Broad'], true).build()
@@ -236,8 +237,8 @@ function setupLayout() {
     _styleSearchTermRows(sheet, 3, lastRow);
   }
 
-  _styleExportSheet(ss, 'Negative_Export');
-  _styleExportSheet(ss, 'Expansion_Ideen');
+  _styleExportSheet('Negative_Export');
+  _styleExportSheet('Expansion_Ideen');
 
   log('setupLayout() abgeschlossen');
   SpreadsheetApp.getUi().alert(
@@ -253,15 +254,25 @@ function setupLayout() {
 // ─────────────────────────────────────────────────────────────
 function _styleSearchTermRows(sheet, fromRow, toRow) {
   if (toRow < fromRow) return;
-  const classifColors = {
-    'Mitbewerber':    { bg: '#FFE5E5', fg: '#CC0000' },
-    'Ort':            { bg: '#E8FDF5', fg: '#0F6E56' },
-    'Informational':  { bg: '#FFE5E5', fg: '#CC0000' },
-    'Junk':           { bg: '#FFE5E5', fg: '#CC0000' },
-    'Eigene Marke':   { bg: '#E8F4FD', fg: '#185FA5' },
-    'Bestand (Aktiv)':{ bg: '#E8F4FD', fg: '#185FA5' },
-    'Unklar':         { bg: '#FFF8E1', fg: '#854F0B' },
+
+  // Farben dynamisch aus Config G (Aktion) laden
+  var classifColors = {
+    'Eigene Marke':    { bg: '#FFF3E0', fg: '#E65100' },
+    'Bestand (Aktiv)': { bg: '#FFF3E0', fg: '#E65100' },
+    'Unklar':          { bg: '#FFF3E0', fg: '#E65100' },
   };
+  var cfgSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Config');
+  if (cfgSheet) {
+    var catData = cfgSheet.getRange('E1:G50').getValues().filter(function(r) { return r[0] !== ''; });
+    catData.forEach(function(row) {
+      var code   = String(row[0]).trim();
+      var action = String(row[2]).trim();
+      if      (action === 'Negativ')   classifColors[code] = { bg: '#FFE5E5', fg: '#CC0000' };
+      else if (action === 'Expansion') classifColors[code] = { bg: '#E8FDF5', fg: '#0F6E56' };
+      else if (action === 'Review')    classifColors[code] = { bg: '#FFF3E0', fg: '#E65100' };
+      else                             classifColors[code] = { bg: '#FFF8E1', fg: '#854F0B' };
+    });
+  }
   const numRows = toRow - fromRow + 1;
   const data = sheet.getRange(fromRow, 1, numRows, 14).getValues();
 
@@ -287,10 +298,12 @@ function _styleSearchTermRows(sheet, fromRow, toRow) {
       sheet.getRange(sr, 7).setBackground('#FFF8E1').setFontColor('#854F0B')
            .setFontWeight('bold').setHorizontalAlignment('center');
     } else {
-      const baseKey = Object.keys(classifColors).find(k => classKey.startsWith(k));
-      if (baseKey) {
-        const cc = classifColors[baseKey];
-        sheet.getRange(sr, 7).setBackground(cc.bg).setFontColor(cc.fg)
+      // Exakter Match zuerst, dann startsWith als Fallback
+      var exactMatch = classifColors[classKey];
+      var baseKey = exactMatch ? classKey : Object.keys(classifColors).find(function(k) { return classKey.startsWith(k) && k.length > classKey.indexOf(k); });
+      var matchedColor = classifColors[classKey] || (baseKey ? classifColors[baseKey] : null);
+      if (matchedColor) {
+        sheet.getRange(sr, 7).setBackground(matchedColor.bg).setFontColor(matchedColor.fg)
              .setFontWeight('bold').setHorizontalAlignment('center');
       }
     }
@@ -320,21 +333,26 @@ function _styleSearchTermRows(sheet, fromRow, toRow) {
 // ─────────────────────────────────────────────────────────────
 // HELPER: Export-Sheet stylen
 // ─────────────────────────────────────────────────────────────
-function _styleExportSheet(ss, name) {
+function _styleExportSheet(name) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
   const s = ss.getSheetByName(name);
   if (!s || s.getLastRow() < 1) { log('"' + name + '" leer'); return; }
   const isNeg  = name === 'Negative_Export';
   const HDR_BG = isNeg ? '#CC0000' : '#0F6E56';
   const BNR_BG = isNeg ? '#FFF8E1' : '#E8FDF5';
   const BORDER = '#D0D0D0';
-  const catColors = {
-    'Mitbewerber':   { bg: '#FFE5E5', fg: '#CC0000' },
-    'Junk':          { bg: '#FFE5E5', fg: '#CC0000' },
-    'Informational': { bg: '#FFE5E5', fg: '#CC0000' },
-    'Ort':           { bg: '#E8FDF5', fg: '#0F6E56' },
-    'Expansion':     { bg: '#E8FDF5', fg: '#0F6E56' },
-    'Unklar':        { bg: '#F8F9FA', fg: '#555555' },
-  };
+  // Farben dynamisch aus Config G (Aktion) laden
+  var catColors = { 'Unklar': { bg: '#F8F9FA', fg: '#555555' } };
+  var _cfg = ss.getSheetByName('Config');
+  if (_cfg) {
+    _cfg.getRange('E1:G50').getValues().filter(function(r){ return r[0] !== ''; }).forEach(function(row) {
+      var code = String(row[0]).trim(), action = String(row[2]).trim();
+      if      (action === 'Negativ')   catColors[code] = { bg: '#FFE5E5', fg: '#CC0000' };
+      else if (action === 'Expansion') catColors[code] = { bg: '#E8FDF5', fg: '#0F6E56' };
+      else if (action === 'Review')    catColors[code] = { bg: '#FFF3E0', fg: '#E65100' };
+      else                             catColors[code] = { bg: '#FFF8E1', fg: '#854F0B' };
+    });
+  }
   s.setHiddenGridlines(true);
   const numCols = s.getLastColumn();
   const lastRow = s.getLastRow();
@@ -742,7 +760,15 @@ function learningLoop() {
   if (newC.length)  msg += 'Sperrbegriffe (Config C):\n   ' + newC.join(', ')  + '\n\n';
   if (newD.length)  msg += 'Mitbewerber (Config D):\n   ' + newD.join(', ')  + '\n\n';
   if (newEx.length) msg += 'KI-Beispiele (Config H:I):\n   ' + newEx.map(function(e) { return e.term + ' -> ' + e.category; }).join('\n   ') + '\n\n';
-  if (dupTotal > 0) msg += dupTotal + ' bereits vorhandene Eintraege uebersprungen.\n\n';
+  if (dupTotal > 0) {
+    var skipList = [];
+    toAdd.A.filter(function(t){ return existing.A[t]; }).forEach(function(t){ skipList.push('Brand: ' + t); });
+    toAdd.B.filter(function(t){ return existing.B[t]; }).forEach(function(t){ skipList.push('Bestand: ' + t); });
+    toAdd.C.filter(function(t){ return existing.C[t]; }).forEach(function(t){ skipList.push('Junk: ' + t); });
+    toAdd.D.filter(function(t){ return existing.D[t]; }).forEach(function(t){ skipList.push('Mitbewerber: ' + t); });
+    toAddExamples.filter(function(e){ return existingExSet[e.term.toLowerCase()]; }).forEach(function(e){ skipList.push('Beispiel: ' + e.term); });
+    msg += 'Bereits vorhanden (uebersprungen):\n   ' + skipList.join('\n   ') + '\n\n';
+  }
   msg += 'In Config eintragen?';
 
   if (ui.alert(msg, ui.ButtonSet.YES_NO) !== ui.Button.YES) return;
@@ -753,12 +779,37 @@ function learningLoop() {
   }, -1);
   var nextListRow = lastUsedRow + 13;
 
-  newA.forEach(function(t) { cfgSheet.getRange(nextListRow, 1).setValue(t); nextListRow++; });
-  newB.forEach(function(t) { cfgSheet.getRange(nextListRow, 2).setValue(t); nextListRow++; });
-  newC.forEach(function(t) { cfgSheet.getRange(nextListRow, 3).setValue(t); nextListRow++; });
-  newD.forEach(function(t) { cfgSheet.getRange(nextListRow, 4).setValue(t); nextListRow++; });
+  // Styling-Helfer fuer Config Listen-Zeilen
+  var styleListCell = function(cell) {
+    cell.setFontFamily('Arial').setFontSize(10).setFontWeight('normal')
+        .setFontColor('#1A1A2E').setBackground('#FFFFFF').setFontStyle('normal')
+        .setHorizontalAlignment('left').setVerticalAlignment('center').setWrap(false)
+        .setBorder(true, true, true, true, true, true,
+          '#D0D0D0', SpreadsheetApp.BorderStyle.SOLID);
+  };
+  var writeListCell = function(row, col, value) {
+    var cell = cfgSheet.getRange(row, col);
+    cell.setValue(value);
+    styleListCell(cell);
+  };
 
-  // ── In KI-Beispiele schreiben ────────────────────────────────
+  // Letzte belegte Zeile pro Spalte separat ermitteln
+  // existingLists = getRange('A12:D200') → idx 0 = Zeile 12, idx 1 = Zeile 13 usw.
+  var nextRowA = 13, nextRowB = 13, nextRowC = 13, nextRowD = 13;
+  existingLists.forEach(function(row, idx) {
+    var sheetRow = idx + 12; // idx 0 → Zeile 12
+    if (row[0]) nextRowA = Math.max(nextRowA, sheetRow + 1);
+    if (row[1]) nextRowB = Math.max(nextRowB, sheetRow + 1);
+    if (row[2]) nextRowC = Math.max(nextRowC, sheetRow + 1);
+    if (row[3]) nextRowD = Math.max(nextRowD, sheetRow + 1);
+  });
+
+  newA.forEach(function(t) { writeListCell(nextRowA, 1, t); nextRowA++; });
+  newB.forEach(function(t) { writeListCell(nextRowB, 2, t); nextRowB++; });
+  newC.forEach(function(t) { writeListCell(nextRowC, 3, t); nextRowC++; });
+  newD.forEach(function(t) { writeListCell(nextRowD, 4, t); nextRowD++; });
+
+  // Kategorie-Farben fuer KI-Beispiele
   if (newEx.length > 0) {
     var lastExRow = existingExamples.reduce(function(max, row, idx) {
       return (row[0] || row[1]) ? idx : max;
@@ -766,9 +817,37 @@ function learningLoop() {
     var nextExRow = lastExRow + 2;
     if (nextExRow < 4) nextExRow = 4;
 
+    var exColors = { 'Unklar': { bg: '#FFF3E0', fg: '#E65100' } };
+    cfgSheet.getRange('E1:G50').getValues().filter(function(r){ return r[0] !== ''; }).forEach(function(row) {
+      var code = String(row[0]).trim(), action = String(row[2]).trim();
+      if      (action === 'Negativ')   exColors[code] = { bg: '#FFE5E5', fg: '#CC0000' };
+      else if (action === 'Expansion') exColors[code] = { bg: '#E8FDF5', fg: '#0F6E56' };
+      else                             exColors[code] = { bg: '#FFF3E0', fg: '#E65100' };
+    });
+
     newEx.forEach(function(e) {
-      cfgSheet.getRange(nextExRow, 8).setValue(e.term);
-      cfgSheet.getRange(nextExRow, 9).setValue(e.category);
+      var c = exColors[e.category] || { bg: '#FFF3E0', fg: '#E65100' };
+
+      // Spalte H: Suchbegriff — erst clearen, dann neu stylen
+      var hCell = cfgSheet.getRange(nextExRow, 8);
+      hCell.clearFormat();
+      hCell.setValue(e.term)
+           .setFontFamily('Arial').setFontSize(10).setFontWeight('normal')
+           .setFontColor('#1A1A2E').setBackground('#FFFFFF').setFontStyle('normal')
+           .setHorizontalAlignment('left').setVerticalAlignment('center').setWrap(false)
+           .setBorder(true, true, true, true, true, true,
+             '#D0D0D0', SpreadsheetApp.BorderStyle.SOLID);
+
+      // Spalte I: Kategorie — erst komplett clearen, dann neu stylen
+      var iCell = cfgSheet.getRange(nextExRow, 9);
+      iCell.clearFormat();
+      iCell.setValue(e.category)
+           .setFontFamily('Arial').setFontSize(10).setFontWeight('bold')
+           .setFontColor(c.fg).setBackground('#FFFFFF').setFontStyle('normal')
+           .setHorizontalAlignment('center').setVerticalAlignment('center').setWrap(false)
+           .setBorder(true, true, true, true, true, true,
+             '#D0D0D0', SpreadsheetApp.BorderStyle.SOLID);
+
       nextExRow++;
     });
   }
@@ -847,7 +926,7 @@ function exportValidated() {
   if (expansionIdeas.length > 0)
     writeSheet('Expansion_Ideen', ['Potenzielles Keyword','KI-Kategorie','Quelle-Kampagne','Klicks','Conversions','Datum'], expansionIdeas);
 
-  const summary = 'Export abgeschlossen!\n\nNegatives: ' + negatives.length + '\nExpansion: ' + expansionIdeas.length + '\nConv-Schutz uebersprungen: ' + skipped + '\n\n-> Jetzt "1. Layout" fuer das Styling ausfuehren.';
+  const summary = 'Export abgeschlossen!\n\nNegatives: ' + negatives.length + '\nExpansion: ' + expansionIdeas.length + '\nConv-Schutz uebersprungen: ' + skipped;
   log(summary);
   ui.alert(summary);
 }
