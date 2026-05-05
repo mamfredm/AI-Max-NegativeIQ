@@ -1,5 +1,5 @@
 // ============================================================
-// AI Max Negative IQ — Fetcher Script
+// AI Max Negative IQ v1 — Fetcher Script
 // Ort: Google Ads > Tools > Skripte
 // Läuft täglich per Zeitplan
 // ============================================================

@@ -1,5 +1,5 @@
 // ============================================================
-// KI-Keyword-Analyzer V3.0 — Uploader Script
+// AI Max Negative IQ v1 — Uploader Script
 // Location: Google Ads > Tools > Scripts
 // Books negatives from the sheet into your Google Ads account
 // ============================================================

@@ -1,5 +1,5 @@
 // ============================================================
-// KI-Keyword-Analyzer V1 — GAS Zentral-Skript
+// AI Max Negative IQ v1 — GAS Zentral-Skript
 // Google Sheet > Erweiterungen > Apps Script
 // ============================================================
 
