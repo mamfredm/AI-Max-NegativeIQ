@@ -1,5 +1,5 @@
 // ============================================================
-// KI-Keyword-Analyzer V3.0 — Fetcher Script
+// AI Max Negative IQ — Fetcher Script
 // Ort: Google Ads > Tools > Skripte
 // Läuft täglich per Zeitplan
 // ============================================================
