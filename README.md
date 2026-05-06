@@ -16,7 +16,7 @@ Your Google Ads account is leaking budget on search terms that will never conver
 
 Manually reviewing search terms is slow, error-prone, and doesn't scale. Most accounts do it once a month — at best.
 
-**Capybara NegativeIQ Search automates this entirely, using AI.**
+**AI Max NegativeIQ automates this entirely, using AI.**
 
 ---
 
