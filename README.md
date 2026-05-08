@@ -269,12 +269,6 @@ Run **🔍 Diagnose & Debug** from the sheet menu for a full status report:
 
 ---
 
-## License
-
-MIT — free to use, modify, and share.
-
----
-
 <div align="center">
 
 ### If NegativeIQ saves your account money, a ⭐ on GitHub helps others find it.
@@ -297,3 +291,9 @@ MIT — free to use, modify, and share.
 <sub>Scan to support · or just use the tool for free, that's fine too 🐾</sub>
 
 </div>
+
+## License
+
+MIT — free to use, modify, and share.
+
+---
