@@ -1,197 +1,299 @@
-# AI Max NegativeIQ Search
+<div align="center">
 
-**AI-powered search term classification for Google Ads. Free. Open source. No agency required.**
+<img src="assets/capybara_outine_bold.svg" width="80" alt="Click-Capybara Logo" />
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Google Ads Scripts](https://img.shields.io/badge/Google%20Ads-Scripts-blue?logo=google)](https://ads.google.com)
-[![Google Sheets](https://img.shields.io/badge/Google-Sheets-34A853?logo=google-sheets&logoColor=white)](https://sheets.google.com)
-[![Language: DE](https://img.shields.io/badge/Language-German%20%F0%9F%87%A9%F0%9F%87%AA-lightgrey)](https://github.com/mamfredm/CapybaraNegativeIQ-Search)
-[![Language: EN](https://img.shields.io/badge/Language-English%20%F0%9F%87%AC%F0%9F%87%A7-orange)](https://github.com/mamfredm/CapybaraNegativeIQ-Search)
-[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/clickcapybara)
+# AI Max NegativeIQ
+
+### AI-powered search term classification for Google Ads.
+### Free. Open source. No agency required.
+
+<br/>
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-fcba02?style=flat-square)](https://opensource.org/licenses/MIT)
+[![Google Ads Scripts](https://img.shields.io/badge/Google%20Ads-Scripts-4285F4?style=flat-square&logo=google)](https://ads.google.com)
+[![Google Sheets](https://img.shields.io/badge/Google-Sheets-34A853?style=flat-square&logo=google-sheets&logoColor=white)](https://docs.google.com/spreadsheets/d/1QElpjSapCqKwZW2-WYUEGYwMJTvk2gxLkyawcTYFq7g/copy)
+
+[![Language: DE](https://img.shields.io/badge/🇩🇪%20German-available-lightgrey?style=flat-square)]()
+[![Version](https://img.shields.io/badge/version-1.5DE-success?style=flat-square)]()
+
+</div>
+
 ---
 
-## The problem
+## What is NegativeIQ?
 
-Your Google Ads account is leaking budget on search terms that will never convert. Job seekers clicking your B2B ads. Competitors researching your pricing. Informational searches with zero purchase intent.
+Most Google Ads accounts are silently leaking budget every day, on job seekers, competitors, and irrelevant queries that will never convert. Manually reviewing search terms is slow, inconsistent, and doesn't scale.
 
-Manually reviewing search terms is slow, error-prone, and doesn't scale. Most accounts do it once a month — at best.
+**NegativeIQ automates the entire process.**
 
-**AI Max NegativeIQ automates this entirely, using AI.**
+It fetches your search terms from Google Ads into a Google Sheet, classifies each one using AI, and lets you push confirmed negatives back into your campaigns with a single click. No data leaves your account. No subscriptions. No black box.
+
+```
+Fetch → Pre-classify → AI-classify → You review → Push negatives → System learns
+```
 
 ---
 
-## What it does
+## How it works
 
-Every day, the script pulls your search terms from Google Ads into a Google Sheet. An AI then classifies each term based on your industry, your business context, and your actual conversion data — not generic rules.
-
-Every search term comes back with:
-- **A classification** (Relevant / Competitor / Informational / Junk / Unclear)
-- **A confidence score** between 0.0 and 1.0, color-coded
-- **A plain-language reason** explaining why the AI made that call
-
-You review, correct what you disagree with, and push validated negatives back into your account in one click. The system learns from your corrections over time.
-
-**What it never touches:** any search term that has already driven a conversion. Conversion protection is on by default.
+| Step | What happens |
+|------|-------------|
+| **1. Fetcher runs daily** | Pulls all search terms from your Search campaigns into the Google Sheet |
+| **2. Pre-classify** | Rule-based pass against your keyword lists — zero API cost |
+| **3. AI-classify** | Remaining terms sent to AI in batches — classified in seconds |
+| **4. You review** | Check classification, confidence score, and AI reasoning. Override if needed |
+| **5. Export** | Validated negatives written to staging sheet |
+| **6. Uploader runs** | Books negatives into your campaigns or shared negative lists |
+| **7. Learning loop** | Your corrections feed back into keyword lists and AI examples |
 
 ---
 
 ## Architecture
 
 ```
-[Google Ads Account]
-        │
-        ▼
-[Script A: Fetcher]          ← Google Ads > Tools > Scripts
-        │  Pulls search terms daily, deduplicates, aggregates 30-day clicks/conversions
-        ▼
-[Google Sheet]
-  ├── SearchTerms             ← Your working surface
-  ├── Config                  ← One-time setup per account
-  ├── Negative_Export         ← Ready to push
-  └── Expansion_Ideas         ← Terms worth building campaigns around
-        │
-        ▼
-[Script B: Analyzer]         ← Sheet > Extensions > Apps Script
-  Menu functions:
-  1. Layout & Dropdowns       → Styles all tabs, sets up color coding
-  2. AI Batch Classify        → Batches terms to AI, returns classifications
-  3. Learning Loop            → Writes your corrections back to Config
-  4. Export                   → Routes validated terms to the right tab
-  🔍 Diagnostics              → Full status report for debugging
-        │
-        ▼
-[Script C: Uploader]         ← Google Ads > Tools > Scripts
-        │  Books Negative_Export as negatives, only removes successful rows
-        ▼
-[Google Ads — Negatives live]
+Google Ads
+    │
+    ├── Fetcher Script (Google Ads Scripts — runs daily)
+    │       → Writes search terms to Google Sheet
+    │
+Google Sheet (Apps Script)
+    ├── AI Config       — client profile, categories, AI examples, neg_lists registry
+    ├── Keyword Lists   — Brand Pure / Brand Kombi / Bestand / Sperrbegriffe / Mitbewerber / Brand Noise
+    ├── SearchTerms     — search campaign terms
+    ├── Negative_Export — staging area for the uploader
+    └── Expansion_Ideen — keywords flagged as expansion opportunities
+    │
+    └── Uploader Script (Google Ads Scripts)
+            Books Negative_Export rows into Google Ads
+            Deletes successfully uploaded rows from the sheet
 ```
 
 ---
 
-## Why this is fast and cheap
+## Files
 
-| | Old approach | Capybara NegativeIQ |
-|---|---|---|
-| API calls per 100 terms | 100 | ~7 (batch of 15) |
-| Processing time | ~400 seconds | ~30 seconds |
-| Cost per 100 terms | ~$0.10 | ~$0.007 |
-| Reasoning per term | None | Plain-language explanation |
-| Conversion protection | Manual | Automatic |
-| Confidence scoring | None | 0.0–1.0, color-coded |
-| Learning loop | None | Corrections feed back to Config |
+| File | Where it lives | What it does |
+|------|---------------|-------------|
+| `AI_Max_NegativeIQ_V1_5DE_GAS.js` | Google Sheet → Extensions → Apps Script | Main Apps Script — classification, export, learning loop |
+| `AI_Max_NegativeIQ_V1_5DE_fetcher.js` | Google Ads → Tools → Scripts | Fetches search terms into the Sheet |
+| `AI_Max_NegativeIQ_V2_3_uploader.js` | Google Ads → Tools → Scripts | Reads `Negative_Export` and books negatives into Google Ads |
+| `AI_Max_NegativeIQ_V1_5DE_Template.xlsx` | — | Sheet template reference |
 
 ---
 
-## What's included
+## Setup
 
-| File | Description |
-|---|---|
-| `fetcher_v1.js` | Google Ads script — pulls search terms daily into your Sheet |
-| `gas_zentral_v1.js` | Google Apps Script — AI classification engine, menu system, export logic |
-| `uploader_v1.js` | Google Ads script — pushes validated negatives back into your account |
-| `README.md` | This file |
-| `Template` | [Google Sheet template — click to copy](https://docs.google.com/spreadsheets/d/1xHLd-H2uIfDsKvdKaW7OL3hR6xKbXT_3oYbZZRllQFw/copy) |
+### 1. Google Sheet
 
----
+Create a new Google Sheet with these tabs (exact names, case-sensitive):
 
-## Quick start — up and running in under 30 minutes
+`SearchTerms` · `AI Config` · `Keyword Lists` · `Negative_Export` · `Expansion_Ideen`
 
-You don't need to know how to code.
+Or [**copy the template directly →**](https://docs.google.com/spreadsheets/d/1QElpjSapCqKwZW2-WYUEGYwMJTvk2gxLkyawcTYFq7g/copy)
 
-**Step 1 — Copy the Google Sheet template**
+### 2. Apps Script
 
-Make a copy of the [Google Sheet template](https://docs.google.com/spreadsheets/d/1xHLd-H2uIfDsKvdKaW7OL3hR6xKbXT_3oYbZZRllQFw/copy) and fill in the `Config` tab:
-- Your industry and business name
-- 5–8 example search term classifications (this dramatically improves AI accuracy)
-- Everything else has sensible defaults
+Open the Sheet → **Extensions → Apps Script**. Paste `AI_Max_NegativeIQ_V1_5DE_GAS.js` and save.
 
-**Step 2 — Add the Fetcher to Google Ads**
+Set your API key: gear icon → **Script Properties** → add:
 
-In Google Ads: `Tools → Scripts → New`
+```
+Key:   AIML_API_KEY
+Value: your-api-key-here
+```
 
-Paste the contents of `fetcher_v1.js`, replace `YOUR_SHEET_URL_HERE` with your Sheet URL, authorize, and set the schedule to **daily**.
+Uses [AIML API](https://aimlapi.com/) with `gpt-4o-mini` by default. Swap model or endpoint in `callAIBatch()` if needed.
 
-**Step 3 — Add the Analyzer to your Sheet**
+### 3. AI Config sheet
 
-In your Google Sheet: `Extensions → Apps Script`
+**A1:B7 — Client Profile**
 
-Paste the contents of `gas_zentral_v1.js`, save, and authorize. A new **Keyword Analyzer** menu will appear in your Sheet toolbar.
+| Key | Value |
+|-----|-------|
+| `client_name` | Your client or account name |
+| `client_industry` | e.g. `E-Commerce`, `SaaS`, `Versicherung` |
+| `default_neg_list` | Name of your default shared negative list in Google Ads |
+| `brand_noise_list` | Name of your Brand Noise negative list |
+| `conv_protect` | `TRUE` to skip terms with conversions |
+| `confidence_warn` | Confidence threshold for warnings, e.g. `0.7` |
+| `batch_size` | Terms per API call, e.g. `15` |
 
-**Step 4 — Run the setup menu**
+**A9:B30 — neg_lists registry** (one row per shared negative list, key `neg_lists`)
 
-Click `Keyword Analyzer → Step 1: Layout & Dropdowns`. This styles all four tabs, adds color coding, and sets up the classification dropdowns.
+**E1:G50 — Categories**
 
-**Step 5 — Let it run, then review**
+| Code | Description | Action |
+|------|-------------|--------|
+| `Brand Pure` | Exact brand name or clear purchase intent | `Review` |
+| `Brand Kombi` | Brand + geo/product, direct intent | `Review` |
+| `Brand Noise` | Brand + research/dissatisfaction signal | `Negativ` |
+| `Mitbewerber` | Competitor brand terms | `Negativ` |
+| `Junk` | Irrelevant, no intent | `Negativ` |
+| `Informational` | Research queries, no purchase intent | `Negativ` |
+| `Informational-Potential` | Research with SEO opportunity | `Expansion` |
+| `Bestand (Aktiv)` | Already covered by active keywords | `Review` |
+| `Unklar` | AI could not classify confidently | `Review` |
 
-The next day, open your Sheet. New search terms will have been pulled in automatically. Click `Step 2: AI Batch Classify` to run classification. Review the results, correct anything the AI got wrong, and click Export to push validated negatives.
+**H1:I50 — AI Examples** (seed examples to guide the AI)
 
----
+### 4. Keyword Lists sheet
 
-## Config reference
+Headers in row 3, data from row 4:
 
-The `Config` tab is the only thing you customize per account. Key fields:
+| A | B | C | D | E | F |
+|---|---|---|---|---|---|
+| Brand Pure | Brand Kombi | Bestand (Aktiv) | Sperrbegriffe | Mitbewerber | Brand Noise Terms |
 
-| Field | Description | Default |
-|---|---|---|
-| `client_industry` | Describe your industry in plain language | Required |
-| `client_name` | Your business name | Required |
-| `conv_protect` | Never flag terms with conversions as negatives | `TRUE` |
-| `confidence_warn` | Flag terms below this score for manual review | `0.7` |
-| `batch_size` | Terms per AI API call (10–20 recommended) | `15` |
+Brand Noise Terms (col F) are noise modifiers: `erfahrungen`, `alternative`, `kündigen`, `test`, `probleme`, `fake` — not full terms.
 
-Categories (what the AI classifies terms into) are also defined in Config — not in the code. You can add, remove, or rename categories without touching a single line of JavaScript.
+### 5. Fetcher Script
 
----
+Google Ads → **Tools → Bulk Actions → Scripts** → New script → paste `AI_Max_NegativeIQ_V1_5DE_fetcher.js`
 
-## API key setup
+Update the config block:
 
-The AI runs via [aimlapi.com](https://aimlapi.com) — an API aggregator that provides access to `gpt-4o-mini` at very low cost (~$0.007 per 100 terms). You'll need a free account there to get a key.
+```javascript
+const SPREADSHEET_URL = 'YOUR_SHEET_URL_HERE';
+const SHEET_NAME      = 'SearchTerms';
+const LOOKBACK_DAYS   = 'LAST_30_DAYS';  // LAST_7_DAYS | LAST_14_DAYS | LAST_30_DAYS
+const MIN_CLICKS      = 1;
+```
 
-Your API key is stored in **Apps Script Project Properties** — not in the sheet, not in the code. It never leaves your Google account.
+Set to run **daily**.
 
-In Apps Script: `Project Settings → Script Properties → Add property`
-- Key: `AIML_API_KEY`
-- Value: your aimlapi.com API key
+### 6. Uploader Script
 
-Sign up at [aimlapi.com](https://aimlapi.com) to get your key. The free tier is enough to get started.
+Google Ads → **Tools → Bulk Actions → Scripts** → New script → paste `AI_Max_NegativeIQ_V2_3_uploader.js`
 
----
+```javascript
+const SPREADSHEET_URL   = 'YOUR_SHEET_URL_HERE';
+const EXPORT_SHEET_NAME = 'Negative_Export';
+```
 
-## Language
-
-> **Note:** The current version (v1) is in German — menus, sheet labels, and AI prompts. An English version is in progress. If you'd like to be notified when it's ready, watch this repo.
-
-For German-speaking Google Ads managers: everything is ready to use as-is.
-
----
-
-## Requirements
-
-- A Google Ads account with search campaigns
-- A Google account (for Google Sheets + Apps Script)
-- An [aimlapi.com](https://aimlapi.com) API key (costs ~$0.007 per 100 terms, free tier available)
-- About 30 minutes for initial setup
-
----
-
-## Contributing
-
-Found a bug? Have an idea for a new feature? Open an issue or submit a pull request. This is a solo project — thoughtful contributions are welcome.
-
-If this saves you time or budget, a ⭐ on GitHub helps other Google Ads specialists find it. 🐒
+Run manually after each export cycle, or schedule it.
 
 ---
 
-## About
+## Pre-Classification Logic (Brand Tier)
 
-Built by [Max](https://www.click-capybara.com) — freelance Google Ads specialist with 8+ years of hands-on experience.
+```
+Term contains brand name?
+│
+├── YES — Exact brand name only?           → Brand Pure (confidence 1.0)
+├── YES — Brand + known noise modifier?   → Brand Noise → routes to brand_noise_list
+├── YES — Exact match in Brand Kombi list? → Brand Kombi (confidence 1.0)
+├── YES — Ambiguous modifier?             → AI Queue (AI decides: Kombi vs Noise)
+└── NO  — Other list checks:
+          Sperrbegriffe → Junk
+          Bestand exact match → Bestand (Aktiv)
+          Mitbewerber → Mitbewerber
+          No match → AI Queue
+```
 
-**Capybara NegativeIQ Search** is part of the Capybara script family — free, open-source Google Ads tools built to give independent advertisers the same technical edge as large agencies.
+> **Conv-Schutz** runs first. If a term has conversions and `conv_protect = TRUE`, it is flagged `⚠️ Conv-Schutz` and skipped during export regardless of classification.
 
-→ [click-capybara.com](https://www.click-capybara.com)
+---
+
+## Workflow
+
+```
+[Fetcher — daily]       Appends new search terms to SearchTerms sheet
+
+[Sheet Menu]
+  1. Prepare Layout     Styles the sheet, sets up dropdowns
+  2a. Pre-Classify      Config-list matching (no API cost)
+  2b. AI-Classify       LLM classification for AI Queue rows only
+  → Review col G (Classification), col H (Confidence), col I (Reason)
+  → Override in col J (Korrektur)
+  → Check col K (Validiert ✅) for rows ready to export
+  3. Export             Writes to Negative_Export + Expansion_Ideen
+  4. Update Config      Learning loop → updates Keyword Lists + AI examples
+
+[Uploader]              Books Negative_Export into Google Ads, deletes uploaded rows
+```
+
+---
+
+## Diagnose & Debug
+
+Run **🔍 Diagnose & Debug** from the sheet menu for a full status report:
+- Sheet tab presence · Column header validation · Classification distribution
+- AI Config summary · neg_lists registry · Category list · Keyword Lists counts · API key check
+
+---
+
+## Changelog
+
+<details>
+<summary><strong>V1.5DE (current)</strong></summary>
+
+- **Brand tier split** — `Eigene Marke` replaced with three granular categories: `Brand Pure`, `Brand Kombi`, `Brand Noise`
+- **Keyword Lists** expanded to 6 columns
+- **Pre-classify brand logic** updated with noise modifier routing
+- **AI system prompt** updated with Brand tier rules
+- **Match type defaults**: Mitbewerber + Brand Noise both default to `Exact`
+- **Export**: Brand Noise auto-routes to `brand_noise_list`
+- **Learning loop**: Brand tier corrections write to correct columns
+- **Performance**: batch writes, reduced flush calls, sleep reduced from 2000ms → 500ms
+
+</details>
+
+<details>
+<summary>V1.0DE</summary>
+
+- Initial Search-only release
+- Two-step classification: Pre-Classify → AI-Classify
+- Conv-Schutz introduced
+- Learning Loop introduced
+
+</details>
+
+---
+
+## Notes
+
+- **List names are case-sensitive** in Google Ads. Check spelling before running the uploader.
+- **Brand_Noise_Negatives** list must be created manually in Google Ads first.
+- The fetcher aggregates metrics for duplicate terms instead of creating new rows.
+- Learning Loop only processes rows with `Status = Verarbeitet` and a value in col J.
+- AI uses `gpt-4o-mini` via AIML API at `temperature: 0.1` for consistent output.
+
+---
+
+## Tech Debt
+
+- Uploader reads/deletes rows one at a time — large exports are slow
+- `_styleDataRows()` makes one `getRange` call per row — could be batched
+- Fetcher aggregates metrics with individual `setValue` calls per duplicate row
+- `writeSheet()` re-styles the full sheet on every export
 
 ---
 
 ## License
 
-MIT License — free to use, modify, and distribute. See `LICENSE` for details.
+MIT — free to use, modify, and share.
+
+---
+
+<div align="center">
+
+### If NegativeIQ saves your account money, a ⭐ on GitHub helps others find it.
+
+<br/>
+
+**If it really saves money — you can buy me a coffee :)**
+
+<br/>
+
+<a href="https://buymeacoffee.com/clickcapybara">
+  <img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me A Coffee" />
+</a>
+
+<br/><br/>
+
+<img src="assets/qr-code.png" width="160" alt="Buy Me a Coffee QR Code" />
+
+<br/>
+<sub>Scan to support · or just use the tool for free, that's fine too 🐾</sub>
+
+</div>
