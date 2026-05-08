@@ -6,8 +6,8 @@
 [![Google Ads Scripts](https://img.shields.io/badge/Google%20Ads-Scripts-blue?logo=google)](https://ads.google.com)
 [![Google Sheets](https://img.shields.io/badge/Google-Sheets-34A853?logo=google-sheets&logoColor=white)](https://sheets.google.com)
 [![Language: DE](https://img.shields.io/badge/Language-German%20%F0%9F%87%A9%F0%9F%87%AA-lightgrey)](https://github.com/mamfredm/CapybaraNegativeIQ-Search)
-[![English: Coming Soon](https://img.shields.io/badge/English-Coming%20Soon-orange)](https://github.com/mamfredm/CapybaraNegativeIQ-Search)
-
+[![Language: EN](https://img.shields.io/badge/Language-English%20%F0%9F%87%AC%F0%9F%87%A7-orange)](https://github.com/mamfredm/CapybaraNegativeIQ-Search)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/clickcapybara)
 ---
 
 ## The problem
