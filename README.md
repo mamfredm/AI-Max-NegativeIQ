@@ -1,4 +1,4 @@
-# Capybara NegativeIQ Search
+# AI Max NegativeIQ Search
 
 **AI-powered search term classification for Google Ads. Free. Open source. No agency required.**
 
