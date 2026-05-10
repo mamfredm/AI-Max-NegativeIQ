@@ -5,7 +5,7 @@
 # AI Max NegativeIQ
 
 ### AI-powered search term classification for Google Ads.
-### Free. Open source. No agency required.
+### Free. Open source. No agency or emails required.
 
 <br/>
 
