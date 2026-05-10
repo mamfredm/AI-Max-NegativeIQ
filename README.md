@@ -76,7 +76,7 @@ Google Sheet (Apps Script)
 |------|---------------|-------------|
 | `AI_Max_NegativeIQ_V1_5DE_GAS.js` | Google Sheet → Extensions → Apps Script | Main Apps Script — classification, export, learning loop |
 | `AI_Max_NegativeIQ_V1_5DE_fetcher.js` | Google Ads → Tools → Scripts | Fetches search terms into the Sheet |
-| `AI_Max_NegativeIQ_V2_3_uploader.js` | Google Ads → Tools → Scripts | Reads `Negative_Export` and books negatives into Google Ads |
+| `AI_Max_NegativeIQ_V1_5_uploader.js` | Google Ads → Tools → Scripts | Reads `Negative_Export` and books negatives into Google Ads |
 | `AI_Max_NegativeIQ_V1_5DE_Template.xlsx` | — | Sheet template reference |
 
 ---
