@@ -13,6 +13,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-fcba02?style=flat-square)](https://opensource.org/licenses/MIT)
 [![Google Ads Scripts](https://img.shields.io/badge/Google%20Ads-Scripts-4285F4?style=flat-square&logo=google)](https://ads.google.com)
 [![Google Sheets](https://img.shields.io/badge/Google-Sheets-34A853?style=flat-square&logo=google-sheets&logoColor=white)](https://docs.google.com/spreadsheets/d/1QElpjSapCqKwZW2-WYUEGYwMJTvk2gxLkyawcTYFq7g/copy)
+[![Click-Capybara](https://img.shields.io/badge/click--capybara.com-fcba02?style=flat-square&logo=googlechrome&logoColor=black)](https://www.click-capybara.com)
 
 [![Language: DE](https://img.shields.io/badge/🇩🇪%20German-available-lightgrey?style=flat-square)]()
 [![Version](https://img.shields.io/badge/version-1.5DE-success?style=flat-square)]()
